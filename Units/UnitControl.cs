@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using AutoChess;
 
 [RequireComponent(typeof(Animator))]
 public abstract class UnitControl : MonoBehaviour, IUnit
