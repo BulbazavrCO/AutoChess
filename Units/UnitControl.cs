@@ -13,7 +13,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     private Vector3 movePos;
 
-    private IEnumerator action;   
+    protected IEnumerator action = null;   
 
     private bool buttle = false;
 
@@ -63,18 +63,19 @@ public abstract class UnitControl : MonoBehaviour, IUnit
     }
 
     public void StartButtle()
-    {        
-        StartCoroutine(UpdateButtle());
+    {
         buttle = true;
+        StartCoroutine(UpdateButtle());        
     }    
 
     public void UpdateHealth(float value)
     {
-        Debug.Log(unit.info.name + " hp:" + value);
+        Debug.Log(unit.info.name + " " + unit.typeCell +   "hp:" + value);
     }
 
     public void Dead()
     {
+        buttle = false;
         StartCoroutine(DeadUnit());
     }   
 
@@ -83,9 +84,9 @@ public abstract class UnitControl : MonoBehaviour, IUnit
         
     }
 
-    public void Attak(Unit enemyUnit, float attakSpeed, float damage, float rangeAttak)
+    public void Attak(Unit enemyUnit, float attakSpeed, float damage)
     {
-        action = AttakUnit(enemyUnit, attakSpeed, damage, rangeAttak);
+        action = AttakUnit(enemyUnit, attakSpeed, damage);
     }
 
     public void Move(int x, int y)
@@ -106,15 +107,14 @@ public abstract class UnitControl : MonoBehaviour, IUnit
             if (action == null)
                 unit.ActionUnit();
             else
-                yield return StartCoroutine(action);
+                yield return StartCoroutine(action);            
         }
     }    
 
-    protected abstract IEnumerator AttakUnit(Unit unit,float attakSpeed, float damage, float rangeAttak);
+    protected abstract IEnumerator AttakUnit(Unit enemyUnit,float attakSpeed, float damage);
 
     private IEnumerator MoveUnit(int x, int y)
     {
-        yield return null;
-        
+        yield return null;        
     }    
 }

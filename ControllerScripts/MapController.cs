@@ -19,8 +19,7 @@ public class MapController : MonoBehaviour
     {
         instance = this;
         map = new Map();
-        enemies = GetComponent<RandomEnemies>();
-        StartButtle();
+        enemies = GetComponent<RandomEnemies>();        
     }
 
     private void Update()

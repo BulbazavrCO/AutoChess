@@ -11,6 +11,8 @@ namespace AutoChess
 
         public List<Unit> UnionUnits { get; private set; }
 
+        private Buttle buttle;
+
         public Map()
         {
             CreateNodes();
@@ -81,8 +83,12 @@ namespace AutoChess
 
         public (int, int) MoveUnit(int x, int y, Unit unit)
         {
-            CheckUnitsOnMap(unit);
-            UnionUnits.Add(unit);
+            if (unit.typeCell == TypeCell.union)
+            {
+                CheckUnitsOnMap(unit);
+                UnionUnits.Add(unit);
+            }
+
             if (Grid[x, y].Cell == null)
             {
                 CreateCellPosition(x, y, unit);
@@ -111,12 +117,12 @@ namespace AutoChess
 
         public void CreateButtle(List<Unit> enemies)
         {
-
+            buttle = new Buttle(UnionUnits, enemies);
         }
 
         public void EndButtle()
         {
-
+            buttle = null;
         }
 
         public bool CheckButtle()

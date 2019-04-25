@@ -19,7 +19,7 @@ namespace AutoChess
 
         private bool dead;
 
-        public Buttle buttle { get; private set; }
+        private Buttle buttle;
 
         #region Stats
         public UnitParametrs info { get; private set; }
@@ -48,8 +48,8 @@ namespace AutoChess
             this.control = control;
             typeCell = type;
 
-            hp = param.parametrs[Level].maxHP;
-            damage = param.parametrs[Level].damage;
+            hp = param.parametrs[Level-1].maxHP;
+            damage = param.parametrs[Level-1].damage;
             armor = param.armor;
             magicArmor = param.magicArmor;
             mp = param.maxMP;
@@ -83,9 +83,9 @@ namespace AutoChess
             if (heal < 0)
                 heal = 0;
 
-            if (hp + heal > info.parametrs[Level].maxHP)
+            if (hp + heal > info.parametrs[Level-1].maxHP)
             {
-                hp = info.parametrs[Level].maxHP;
+                hp = info.parametrs[Level-1].maxHP;
             }
             else
             {
@@ -130,14 +130,15 @@ namespace AutoChess
         {
             Unit enemyUnit = CheckAttak();
             if (enemyUnit != null)
-                control.Attak(enemyUnit, info.parametrs[Level].attakSpeed, Damage(), info.attakRange);
+                control.Attak(enemyUnit, info.parametrs[Level-1].attakSpeed, Damage());
             else
                 control.Move(Move().Item1, Move().Item2);
         }
 
-        public void StartButtle()
+        public void StartButtle(Buttle buttle)
         {
-            control.StartButtle();
+            this.buttle = buttle;
+            control.StartButtle();            
         }
 
         private void CreateXY(int x, int y)
@@ -148,7 +149,7 @@ namespace AutoChess
 
         private Unit CheckAttak()
         {
-            return null;
+            return buttle.GetUnit(typeCell);
         }
 
         private float Damage()

@@ -17,7 +17,7 @@ namespace AutoChess
 
         void StartButtle();
 
-        void Attak(Unit enemyUnit, float attakSpeed, float damage, float attakRange);
+        void Attak(Unit enemyUnit, float attakSpeed, float damage);
 
         void Move(int x, int y);
     }

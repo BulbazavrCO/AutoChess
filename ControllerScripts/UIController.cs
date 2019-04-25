@@ -8,4 +8,9 @@ public class UIController : MonoBehaviour
     {
         MapController.instance.BuyUnit(param);
     }
+
+    public void StartButtle()
+    {
+        MapController.instance.StartButtle();
+    }
 }
