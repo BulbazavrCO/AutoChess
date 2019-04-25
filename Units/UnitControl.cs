@@ -13,9 +13,9 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     private Vector3 movePos;
 
-    private IEnumerator updateButtle;
+    private IEnumerator action;   
 
-    private Unit enemyUnit;
+    private bool buttle = false;
 
     public void SetPosition(Vector3 pos)
     {
@@ -41,8 +41,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
     }    
 
     public void Create(Transform parrent, Unit unit)
-    {
-        updateButtle = UpdateButtle();
+    {       
         anim = GetComponent<Animator>();
         tr = GetComponent<Transform>();        
         tr.SetParent(parrent);
@@ -65,7 +64,8 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     public void StartButtle()
     {        
-        StartCoroutine(updateButtle);
+        StartCoroutine(UpdateButtle());
+        buttle = true;
     }    
 
     public void UpdateHealth(float value)
@@ -75,37 +75,46 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     public void Dead()
     {
-        
+        StartCoroutine(DeadUnit());
     }   
 
     private void OnMouseDown()
     {
         
     }
+
+    public void Attak(Unit enemyUnit, float attakSpeed, float damage, float rangeAttak)
+    {
+        action = AttakUnit(enemyUnit, attakSpeed, damage, rangeAttak);
+    }
+
+    public void Move(int x, int y)
+    {
+        action = MoveUnit(x, y);
+    }
+
+    private IEnumerator DeadUnit()
+    {
+        yield return new WaitForSeconds(2.0f);
+        DestroyUnit();
+    }
     
     private IEnumerator UpdateButtle()
-    {
-        enemyUnit = unit.GetEnemy();
-        while(true)
+    {        
+        while(buttle)
         {
-            IEnumerator function = CreateFunction();
-            yield return StartCoroutine(function);
+            if (action == null)
+                unit.ActionUnit();
+            else
+                yield return StartCoroutine(action);
         }
-    }
+    }    
 
-    private IEnumerator CreateFunction()
-    {
-        IEnumerator move = MoveUnit();
-        return move;
-    }
+    protected abstract IEnumerator AttakUnit(Unit unit,float attakSpeed, float damage, float rangeAttak);
 
-    protected abstract IEnumerator AttakUnit();
-
-    private IEnumerator MoveUnit()
+    private IEnumerator MoveUnit(int x, int y)
     {
         yield return null;
         
-    }
-
-  
+    }    
 }

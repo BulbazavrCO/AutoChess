@@ -16,5 +16,9 @@ namespace AutoChess
         void UpdateHealth(float value);
 
         void StartButtle();
+
+        void Attak(Unit enemyUnit, float attakSpeed, float damage, float attakRange);
+
+        void Move(int x, int y);
     }
 }

@@ -17,6 +17,8 @@ namespace AutoChess
 
         private Map map;
 
+        private bool dead;
+
         public Buttle buttle { get; private set; }
 
         #region Stats
@@ -38,6 +40,7 @@ namespace AutoChess
 
         public Unit(UnitParametrs param, Map map, int x, int y, IUnit control, TypeCell type)
         {
+            dead = false;
             Level = 1;
             this.map = map;
             info = param;
@@ -62,6 +65,8 @@ namespace AutoChess
             if (hp - damage < 0)
             {
                 hp = 0;
+                dead = true;
+                control.Dead();
             }
             else
             {
@@ -98,29 +103,6 @@ namespace AutoChess
             return Move(x, y);
         }
 
-        private (int, int) OnStock()
-        {
-            if (map.stock.CheckStock(this))
-            {
-                map.RemoveCell(this);
-                X = -1;
-                Y = -1;
-                return (map.stock.OnStock(this), -1);
-            }
-            else
-                return (X, Y);
-        }
-
-        private (int x, int y) Move(float x, float y)
-        {
-            int checkX = CheckX((int)x);
-            int checkY = CheckY((int)y);
-            RemoveUnitPosition();
-            (int posX, int posY) pos = map.MoveUnit(checkX, checkY, this);
-            CreateXY(pos.posX, pos.posY);
-            return pos;
-        }
-
         public void LevelUp()
         {
             Level++;
@@ -144,22 +126,62 @@ namespace AutoChess
             control.DestroyUnit();
         }
 
+        public void ActionUnit()
+        {
+            Unit enemyUnit = CheckAttak();
+            if (enemyUnit != null)
+                control.Attak(enemyUnit, info.parametrs[Level].attakSpeed, Damage(), info.attakRange);
+            else
+                control.Move(Move().Item1, Move().Item2);
+        }
+
+        public void StartButtle()
+        {
+            control.StartButtle();
+        }
+
         private void CreateXY(int x, int y)
         {
             X = x;
             Y = y;
         }
 
-        public Unit GetEnemy()
+        private Unit CheckAttak()
         {
-            if (typeCell == TypeCell.enemy)
-                return buttle.UnionUnits[0];
-            return buttle.UnionUnits[0];
+            return null;
         }
 
-        public void StartButtle()
+        private float Damage()
         {
-            control.StartButtle();
+            return damage;
+        }
+
+        private (int, int) Move()
+        {
+            return (0, 0);
+        }
+
+        private (int, int) OnStock()
+        {
+            if (map.stock.CheckStock(this))
+            {
+                map.RemoveCell(this);
+                X = -1;
+                Y = -1;
+                return (map.stock.OnStock(this), -1);
+            }
+            else
+                return (X, Y);
+        }
+
+        private (int x, int y) Move(float x, float y)
+        {
+            int checkX = CheckX((int)x);
+            int checkY = CheckY((int)y);
+            RemoveUnitPosition();
+            (int posX, int posY) pos = map.MoveUnit(checkX, checkY, this);
+            CreateXY(pos.posX, pos.posY);
+            return pos;
         }
 
         private int CheckX(int x)
