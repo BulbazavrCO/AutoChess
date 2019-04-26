@@ -11,7 +11,7 @@ public class MeleeUnit : UnitControl
         if(enemyUnit != null)
         {
             enemyUnit.Damage(damage);
-            Debug.Log(unit.typeCell + " Damage by: " + enemyUnit.typeCell);
+           // Debug.Log(unit.typeCell + " Damage by: " + enemyUnit.typeCell + " " + damage);
         }
         action = null;
     }

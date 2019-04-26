@@ -19,8 +19,6 @@ namespace AutoChess
 
         private bool dead;
 
-        private Buttle buttle;
-
         #region Stats
         public UnitParametrs info { get; private set; }
 
@@ -29,6 +27,7 @@ namespace AutoChess
         private float armor;
         private float magicArmor;
         private float damage;
+        private float attakSpeed;
         #endregion
 
 
@@ -38,31 +37,26 @@ namespace AutoChess
             info = param;
         }
 
-        public Unit(UnitParametrs param, Map map, int x, int y, IUnit control, TypeCell type)
+        public Unit(UnitParametrs param, Map map, int x, int y, TypeCell type)
         {
             dead = false;
             Level = 1;
             this.map = map;
             info = param;
             CreateXY(x, y);
-            this.control = control;
             typeCell = type;
 
-            hp = param.parametrs[Level-1].maxHP;
-            damage = param.parametrs[Level-1].damage;
-            armor = param.armor;
-            magicArmor = param.magicArmor;
-            mp = param.maxMP;
+            UpdateStats();
         }
 
         public void Damage(float value)
         {
-            damage = value;
+            float damageIn = value;
 
-            if (damage < 0)
-                damage = 0;
+            if (damageIn < 0)
+                damageIn = 0;
 
-            if (hp - damage < 0)
+            if (hp - damageIn < 0)
             {
                 hp = 0;
                 dead = true;
@@ -70,7 +64,7 @@ namespace AutoChess
             }
             else
             {
-                hp -= damage;
+                hp -= damageIn;
             }
 
             control.UpdateHealth(hp);
@@ -83,9 +77,9 @@ namespace AutoChess
             if (heal < 0)
                 heal = 0;
 
-            if (hp + heal > info.parametrs[Level-1].maxHP)
+            if (hp + heal > info.parametrs[Level - 1].maxHP)
             {
-                hp = info.parametrs[Level-1].maxHP;
+                hp = info.parametrs[Level - 1].maxHP;
             }
             else
             {
@@ -95,17 +89,22 @@ namespace AutoChess
             control.UpdateHealth(hp);
         }
 
-        public (int, int) MoveTo(float x, float y)
+        public (int, int) CreateTo(float x, float y)
         {
-            if (y < 0)
+            int checkX = CheckX((int)x);
+            int checkY = CheckY((int)y);
+
+            if (y < 0)            
                 return OnStock();
 
-            return Move(x, y);
+            CreateXY(checkX, checkY);
+            return map.CreateUnitOnMap(checkX, checkY, this); 
         }
 
         public void LevelUp()
         {
             Level++;
+            UpdateStats();
             control.LevelUp(Level);
         }
 
@@ -116,8 +115,13 @@ namespace AutoChess
 
         public void RemoveUnitPosition()
         {
-            map.stock.RemoveUnit(this);
-            map.RemoveCell(this);
+            if (Y < 0)
+                map.stock.RemoveUnit(this);
+            else
+            {
+                map.RemoveCell(this);
+                map.RemoveUnit(this);
+            }
         }
 
         public void DestroyUnit()
@@ -130,15 +134,29 @@ namespace AutoChess
         {
             Unit enemyUnit = CheckAttak();
             if (enemyUnit != null)
-                control.Attak(enemyUnit, info.parametrs[Level-1].attakSpeed, Damage());
+                control.Attak(enemyUnit, attakSpeed, Damage());
             else
                 control.Move(Move().Item1, Move().Item2);
         }
 
-        public void StartButtle(Buttle buttle)
+        public void StartButtle()
         {
-            this.buttle = buttle;
-            control.StartButtle();            
+            control.StartButtle();
+        }
+
+        public void AddControl(IUnit control)
+        {
+            this.control = control;
+        }
+
+        private void UpdateStats()
+        {
+            hp = info.parametrs[Level - 1].maxHP;
+            damage = info.parametrs[Level - 1].damage;
+            armor = info.armor;
+            magicArmor = info.magicArmor;
+            mp = info.maxMP;
+            attakSpeed = info.parametrs[Level - 1].attakSpeed;
         }
 
         private void CreateXY(int x, int y)
@@ -149,7 +167,7 @@ namespace AutoChess
 
         private Unit CheckAttak()
         {
-            return buttle.GetUnit(typeCell);
+            return map.GetUnit(typeCell, info.attakRange, X, Y);
         }
 
         private float Damage()
@@ -157,16 +175,10 @@ namespace AutoChess
             return damage;
         }
 
-        private (int, int) Move()
-        {
-            return (0, 0);
-        }
-
         private (int, int) OnStock()
         {
             if (map.stock.CheckStock(this))
-            {
-                map.RemoveCell(this);
+            {              
                 X = -1;
                 Y = -1;
                 return (map.stock.OnStock(this), -1);
@@ -175,15 +187,10 @@ namespace AutoChess
                 return (X, Y);
         }
 
-        private (int x, int y) Move(float x, float y)
+        private (int, int) Move()
         {
-            int checkX = CheckX((int)x);
-            int checkY = CheckY((int)y);
-            RemoveUnitPosition();
-            (int posX, int posY) pos = map.MoveUnit(checkX, checkY, this);
-            CreateXY(pos.posX, pos.posY);
-            return pos;
-        }
+            return (0, 0);
+        }       
 
         private int CheckX(int x)
         {

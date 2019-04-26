@@ -5,33 +5,52 @@ using System.Linq;
 
 namespace AutoChess
 {
-    public class Buttle
+    class Buttle
     {
         private List<Unit> unionUnits;
         private List<Unit> enemiesUnits;
+        private Map map;
 
-        public Buttle(List<Unit> union, List<Unit> enemies)
-        {
+        public Buttle(List<Unit> union, List<Unit> enemies, Map map)
+        {            
             unionUnits = union;
             enemiesUnits = enemies;
             Start(union.Concat(enemies).ToList());
+            this.map = map;
         }
 
         public void Start(List<Unit> units)
         {
             foreach(var unit in units)
             {
-                unit.StartButtle(this);
+                unit.StartButtle();
             }
-        }
-        
-     
-        public Unit GetUnit(TypeCell type)
+        }    
+       
+        public void RemoveUnit(Unit unit)
         {
-            if (type == TypeCell.union)
-                return enemiesUnits[0];
+            if (unit.typeCell == TypeCell.enemy)
+                enemiesUnits.Remove(unit);
+            else
+                unionUnits.Remove(unit);
+        }
 
-            return unionUnits[0];
+        public void AddUnit(Unit unit)
+        {
+            if (unit.typeCell == TypeCell.enemy)
+                enemiesUnits.Add(unit);
+            else
+                unionUnits.Add(unit);
+        }
+
+        public int CountEnemies()
+        {
+            return enemiesUnits.Count;
+        }    
+        
+        public bool CheckButtle()
+        {
+            return unionUnits.Count == 0 || enemiesUnits.Count == 0;
         }
 
         public void EndButtle()

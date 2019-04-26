@@ -24,7 +24,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     public void PositionOnMap(float x, float y)
     {
-        tr.position = Pos(unit.MoveTo(x, y));
+        tr.position = Pos(unit.CreateTo(x, y));
     }
 
     private Vector3 Pos ((int x, int y) pos)
@@ -45,8 +45,9 @@ public abstract class UnitControl : MonoBehaviour, IUnit
         anim = GetComponent<Animator>();
         tr = GetComponent<Transform>();        
         tr.SetParent(parrent);
-        this.unit = unit;        
+        this.unit = unit;
 
+        unit.AddControl(this);
         PositionOnMap(unit.X, unit.Y);
     }      
 
@@ -60,6 +61,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
         Renderer r = GetComponent<MeshRenderer>();       
 
         r.material.color = level == 2 ? Color.red : Color.blue;
+        Debug.Log(level);
     }
 
     public void StartButtle()
@@ -70,7 +72,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     public void UpdateHealth(float value)
     {
-        Debug.Log(unit.info.name + " " + unit.typeCell +   "hp:" + value);
+        Debug.Log(unit.info.name + " " + unit.typeCell +   "  hp:" + value);
     }
 
     public void Dead()
@@ -87,6 +89,8 @@ public abstract class UnitControl : MonoBehaviour, IUnit
     public void Attak(Unit enemyUnit, float attakSpeed, float damage)
     {
         action = AttakUnit(enemyUnit, attakSpeed, damage);
+
+        Debug.Log(unit.typeCell + " " + damage);
     }
 
     public void Move(int x, int y)

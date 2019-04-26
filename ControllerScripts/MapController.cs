@@ -83,12 +83,17 @@ public class MapController : MonoBehaviour
     }
 
     private Unit CreateUnit(UnitParametrs param, int x, int y, TypeCell type)
-    {
-        GameObject go = Instantiate(param.model);
-        var unitControl = go.AddComponent<MeleeUnit>();
-        Unit unit = new Unit(param, map, x, y, unitControl, type);
-        unitControl.Create(transform, unit);
+    {       
+        Unit unit = new Unit(param, map, x, y, type);
+        CreateUnit(unit, param.model);
         return unit;
+    }
+
+    private void CreateUnit(Unit unit, GameObject prefab)
+    {
+        GameObject go = Instantiate(prefab);
+        var unitControl = go.AddComponent<MeleeUnit>();
+        unitControl.Create(transform, unit);
     }
 
     private List<Unit> EnemiesUnits()
@@ -120,6 +125,11 @@ public class MapController : MonoBehaviour
 
     public void EndButtle()
     {
+        map.EndButtle();
         List<Unit> units = map.UnionUnits;
+        foreach(var unit in units)
+        {
+            CreateUnit(unit, unit.info.model);
+        }
     }
 }

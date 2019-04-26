@@ -81,13 +81,10 @@ namespace AutoChess
             Grid[x, y].Cell = cell;
         }
 
-        public (int, int) MoveUnit(int x, int y, Unit unit)
+        public (int, int) CreateUnitOnMap(int x, int y, Unit unit)
         {
-            if (unit.typeCell == TypeCell.union)
-            {
-                CheckUnitsOnMap(unit);
-                UnionUnits.Add(unit);
-            }
+            CheckUnitsOnMap(unit);
+            UnionUnits.Add(unit);
 
             if (Grid[x, y].Cell == null)
             {
@@ -104,34 +101,73 @@ namespace AutoChess
 
         }
 
+        public (int, int) MoveUnit(int x, int y)
+        {
+            return (0, 0);
+        }
+
         public void RemoveCell(ICell cell)
         {
-            if (cell.X >= 0 && cell.Y >= 0)
-            {
-                Grid[cell.X, cell.Y].Cell = null;
-                Unit unit = (Unit)cell;
-                if (unit != null)
-                    UnionUnits.Remove(unit);
-            }
+            Grid[cell.X, cell.Y].Cell = null;
+        }
+
+        public void AddUnitInButtle(Unit unit)
+        {
+            buttle.AddUnit(unit);
+        }
+
+        public void RemoveUnitInButtle(Unit unit)
+        {
+            buttle.RemoveUnit(unit);
+        }
+
+        public void RemoveUnit(Unit unit)
+        {
+            UnionUnits.Remove(unit);
         }
 
         public void CreateButtle(List<Unit> enemies)
         {
-            buttle = new Buttle(UnionUnits, enemies);
+            buttle = new Buttle(UnionUnits, enemies, this);
         }
 
         public void EndButtle()
         {
+            buttle.EndButtle();
             buttle = null;
         }
 
         public bool CheckButtle()
         {
-            return false;
+            return buttle.CheckButtle();
         }
 
         public List<Unit> GetButtleUnits()
         {
+            return null;
+        }
+
+        public Unit GetUnit(TypeCell type, int rangeAttak, int x, int y)
+        {
+            for (int i = x-rangeAttak; i <= x+rangeAttak; i++)
+            {
+                for(int j = y-rangeAttak; i <= y+rangeAttak; i++)
+                {
+                    if (i > 0 && i < 8 && j > 0 && j < 8)
+                    {
+                        ICell cell = Grid[i, j].Cell;
+
+                        if (cell == null)
+                            continue;
+
+                        if (cell.typeCell == TypeCell.netral)
+                            continue;
+
+                        if (cell.typeCell != type)
+                            return (Unit)cell;
+                    }
+                }
+            }
             return null;
         }
     }

@@ -5,12 +5,12 @@ using AutoChess;
 
 public class Bullet : MonoBehaviour
 {
-    private Transform tr;    
+    private Transform tr;   
 
     public void MoveInUnit(Unit unit, float damage, BulletParametrs param)
     {
         tr = GetComponent<Transform>();
-        StartCoroutine(MoveBullet(unit, damage, param.Speed));
+        StartCoroutine(MoveBullet(unit, damage, param.Speed));        
     }
 
     private IEnumerator MoveBullet(Unit unit, float damage, float speed)
