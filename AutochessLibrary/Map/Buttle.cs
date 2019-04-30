@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 
 namespace AutoChess
@@ -14,8 +13,8 @@ namespace AutoChess
         public Buttle(List<Unit> union, List<Unit> enemies, Map map)
         {            
             unionUnits = union;
-            enemiesUnits = enemies;
-            Start(union.Concat(enemies).ToList());
+            enemiesUnits = enemies;           
+            Start(unionUnits.Concat(enemiesUnits).ToList());
             this.map = map;
         }
 

@@ -18,6 +18,99 @@ namespace AutoChess
             CreateNodes();
             UnionUnits = new List<Unit>();
             stock = new Stock(this);
+        }      
+
+        public (int, int) CreateUnionMapUnit(int x, int y, Unit unit)
+        {
+            CheckUnitsOnMap(unit);
+            UnionUnits.Add(unit);
+            return CreateUnitOnMap(x, y, unit);
+        }
+
+        public void RemoveUnitOnMap(Unit unit)
+        {
+            UnionUnits.Remove(unit);
+        }
+
+        public (int, int) CreateUnitOnMap(int x, int y, Unit unit)
+        {
+            if (Grid[x, y].Cell == null)
+            {
+                CreateCellPosition(x, y, unit);
+
+                return (x, y);
+            }
+            else
+            {
+                (int i, int j) pos = CheckPositionOnMap(x, y);
+                CreateCellPosition(pos.i, pos.j, unit);
+                return pos;
+            }
+        }
+
+        public void RemoveCell(ICell cell)
+        {
+            Grid[cell.X, cell.Y].Cell = null;
+        }
+
+        public (int, int) MoveUnit(int x, int y)
+        {
+            return (0, 0);
+        }       
+
+        public void AddUnitInButtle(Unit unit)
+        {
+            buttle.AddUnit(unit);
+        }
+
+        public void RemoveUnitInButtle(Unit unit)
+        {
+            buttle.RemoveUnit(unit);
+        }     
+
+        public void CreateButtle(List<Unit> enemies)
+        {
+            buttle = new Buttle(UnionUnits, enemies, this);
+        }
+
+        public void EndButtle()
+        {
+            buttle.EndButtle();
+            buttle = null;
+        }
+
+        public bool CheckButtle()
+        {
+            return buttle.CheckButtle();
+        }
+
+        public List<Unit> GetButtleUnits()
+        {
+            return null;
+        }
+
+        public Unit GetUnit(TypeCell type, int rangeAttak, int x, int y)
+        {
+            for (int i = x-rangeAttak; i <= x+rangeAttak; i++)
+            {
+                for(int j = y-rangeAttak; j <= y+rangeAttak; j++)
+                {
+                    if (i >= 0 && i < 8 && j >= 0 && j < 8)
+                    {
+                        ICell cell = Grid[i, j].Cell;                        
+
+                        if (cell == null)
+                            continue;
+
+                        if (cell.typeCell == TypeCell.netral)
+                            continue;
+
+                        if (cell.typeCell != type)                            
+                            return (Unit)cell;                       
+                    }
+                }
+            }
+            return null;
         }
 
         private void CreateNodes()
@@ -73,102 +166,11 @@ namespace AutoChess
                 unit.LevelUp();
                 CheckUnitsOnMap(unit);
             }
-
         }
 
         private void CreateCellPosition(int x, int y, ICell cell)
         {
             Grid[x, y].Cell = cell;
-        }
-
-        public (int, int) CreateUnitOnMap(int x, int y, Unit unit)
-        {
-            CheckUnitsOnMap(unit);
-            UnionUnits.Add(unit);
-
-            if (Grid[x, y].Cell == null)
-            {
-                CreateCellPosition(x, y, unit);
-
-                return (x, y);
-            }
-            else
-            {
-                (int i, int j) pos = CheckPositionOnMap(x, y);
-                CreateCellPosition(pos.i, pos.j, unit);
-                return pos;
-            }
-
-        }
-
-        public (int, int) MoveUnit(int x, int y)
-        {
-            return (0, 0);
-        }
-
-        public void RemoveCell(ICell cell)
-        {
-            Grid[cell.X, cell.Y].Cell = null;
-        }
-
-        public void AddUnitInButtle(Unit unit)
-        {
-            buttle.AddUnit(unit);
-        }
-
-        public void RemoveUnitInButtle(Unit unit)
-        {
-            buttle.RemoveUnit(unit);
-        }
-
-        public void RemoveUnit(Unit unit)
-        {
-            UnionUnits.Remove(unit);
-        }
-
-        public void CreateButtle(List<Unit> enemies)
-        {
-            buttle = new Buttle(UnionUnits, enemies, this);
-        }
-
-        public void EndButtle()
-        {
-            buttle.EndButtle();
-            buttle = null;
-        }
-
-        public bool CheckButtle()
-        {
-            return buttle.CheckButtle();
-        }
-
-        public List<Unit> GetButtleUnits()
-        {
-            return null;
-        }
-
-        public Unit GetUnit(TypeCell type, int rangeAttak, int x, int y)
-        {
-            for (int i = x-rangeAttak; i <= x+rangeAttak; i++)
-            {
-                for(int j = y-rangeAttak; i <= y+rangeAttak; i++)
-                {
-                    if (i > 0 && i < 8 && j > 0 && j < 8)
-                    {
-                        ICell cell = Grid[i, j].Cell;
-
-                        if (cell == null)
-                            continue;
-
-                        if (cell.typeCell == TypeCell.netral)
-                            continue;
-
-                        if (cell.typeCell != type)
-                            return (Unit)cell;
-                    }
-                }
-            }
-            return null;
         }
     }
 }

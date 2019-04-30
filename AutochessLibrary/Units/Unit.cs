@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using AutoChess.Parametrs;
 
 namespace AutoChess
-{
+{    
     public class Unit : ICell
     {
         public int X { get; private set; }
@@ -20,7 +21,7 @@ namespace AutoChess
         private bool dead;
 
         #region Stats
-        public UnitParametrs info { get; private set; }
+        public UnitStats stats { get; private set; }
 
         private float hp;
         private float mp;
@@ -31,18 +32,18 @@ namespace AutoChess
         #endregion
 
 
-        public Unit(UnitParametrs param)
+        public Unit(UnitStats param)
         {
             Level = 1;
-            info = param;
+            stats = param;
         }
 
-        public Unit(UnitParametrs param, Map map, int x, int y, TypeCell type)
+        public Unit(UnitStats param, Map map, int x, int y, TypeCell type)
         {
             dead = false;
             Level = 1;
             this.map = map;
-            info = param;
+            stats = param;
             CreateXY(x, y);
             typeCell = type;
 
@@ -61,6 +62,7 @@ namespace AutoChess
                 hp = 0;
                 dead = true;
                 control.Dead();
+                map.RemoveUnitInButtle(this);
             }
             else
             {
@@ -77,9 +79,9 @@ namespace AutoChess
             if (heal < 0)
                 heal = 0;
 
-            if (hp + heal > info.parametrs[Level - 1].maxHP)
+            if (hp + heal > stats.GetHP(Level - 1))
             {
-                hp = info.parametrs[Level - 1].maxHP;
+                hp = stats.GetHP(Level - 1);
             }
             else
             {
@@ -98,7 +100,10 @@ namespace AutoChess
                 return OnStock();
 
             CreateXY(checkX, checkY);
-            return map.CreateUnitOnMap(checkX, checkY, this); 
+            if(typeCell == TypeCell.union)
+            return map.CreateUnionMapUnit(checkX, checkY, this);
+
+            return map.CreateUnitOnMap(checkX, checkY, this);
         }
 
         public void LevelUp()
@@ -110,7 +115,7 @@ namespace AutoChess
 
         public bool CheckUnits(Unit unit)
         {
-            return unit != null && typeCell == unit.typeCell && unit.Level < 3 && this != unit && Level == unit.Level && info.name == unit.info.name;
+            return unit != null && typeCell == unit.typeCell && unit.Level < 3 && this != unit && Level == unit.Level && stats.name == unit.stats.name;
         }
 
         public void RemoveUnitPosition()
@@ -120,7 +125,7 @@ namespace AutoChess
             else
             {
                 map.RemoveCell(this);
-                map.RemoveUnit(this);
+                map.RemoveUnitOnMap(this);
             }
         }
 
@@ -151,12 +156,12 @@ namespace AutoChess
 
         private void UpdateStats()
         {
-            hp = info.parametrs[Level - 1].maxHP;
-            damage = info.parametrs[Level - 1].damage;
-            armor = info.armor;
-            magicArmor = info.magicArmor;
-            mp = info.maxMP;
-            attakSpeed = info.parametrs[Level - 1].attakSpeed;
+            hp = stats.GetHP(Level-1);
+            damage = stats.GetDamage(Level - 1);
+            armor = stats.armor;
+            magicArmor = stats.magicArmor;
+            mp = stats.maxMP;
+            attakSpeed = stats.GettAttakSpeed(Level-1);
         }
 
         private void CreateXY(int x, int y)
@@ -167,7 +172,7 @@ namespace AutoChess
 
         private Unit CheckAttak()
         {
-            return map.GetUnit(typeCell, info.attakRange, X, Y);
+            return map.GetUnit(typeCell, stats.attakRange, X, Y);
         }
 
         private float Damage()

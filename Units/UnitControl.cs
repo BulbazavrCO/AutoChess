@@ -17,6 +17,8 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     private bool buttle = false;
 
+    protected UnitParametrs param;
+
     public void SetPosition(Vector3 pos)
     {
         tr.position = pos;
@@ -40,7 +42,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
         unit.RemoveUnitPosition();
     }    
 
-    public void Create(Transform parrent, Unit unit)
+    public void Create(Transform parrent, Unit unit, UnitParametrs param)
     {       
         anim = GetComponent<Animator>();
         tr = GetComponent<Transform>();        
@@ -72,7 +74,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     public void UpdateHealth(float value)
     {
-        Debug.Log(unit.info.name + " " + unit.typeCell +   "  hp:" + value);
+        Debug.Log(unit.stats.name + " " + unit.typeCell +   "  hp:" + value);
     }
 
     public void Dead()
@@ -95,7 +97,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     public void Move(int x, int y)
     {
-        action = MoveUnit(x, y);
+        action = MoveUnit(x, y);        
     }
 
     private IEnumerator DeadUnit()
@@ -119,6 +121,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     private IEnumerator MoveUnit(int x, int y)
     {
-        yield return null;        
+        yield return null;
+        action = null;
     }    
 }

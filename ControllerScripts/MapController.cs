@@ -76,7 +76,7 @@ public class MapController : MonoBehaviour
 
     public void BuyUnit(UnitParametrs param)
     {
-        if (map.stock.CheckStock(new Unit(param)))
+        if (map.stock.CheckStock(new Unit(param.stats)))
         {
             CreateUnit(param, -1, -1, TypeCell.union);
         }
@@ -84,16 +84,16 @@ public class MapController : MonoBehaviour
 
     private Unit CreateUnit(UnitParametrs param, int x, int y, TypeCell type)
     {       
-        Unit unit = new Unit(param, map, x, y, type);
-        CreateUnit(unit, param.model);
+        Unit unit = new Unit(param.stats, map, x, y, type);
+        CreateUnit(unit, param.model, param);
         return unit;
     }
 
-    private void CreateUnit(Unit unit, GameObject prefab)
+    private void CreateUnit(Unit unit, GameObject prefab, UnitParametrs param)
     {
         GameObject go = Instantiate(prefab);
         var unitControl = go.AddComponent<MeleeUnit>();
-        unitControl.Create(transform, unit);
+        unitControl.Create(transform, unit, param);
     }
 
     private List<Unit> EnemiesUnits()
@@ -125,11 +125,6 @@ public class MapController : MonoBehaviour
 
     public void EndButtle()
     {
-        map.EndButtle();
-        List<Unit> units = map.UnionUnits;
-        foreach(var unit in units)
-        {
-            CreateUnit(unit, unit.info.model);
-        }
+        map.EndButtle();        
     }
 }
