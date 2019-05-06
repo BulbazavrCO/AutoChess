@@ -42,7 +42,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
         unit.RemoveUnitPosition();
     }    
 
-    public void Create(Transform parrent, Unit unit, UnitParametrs param)
+    public void Create(Transform parrent, Unit unit, UnitParametrs param, int level)
     {       
         anim = GetComponent<Animator>();
         tr = GetComponent<Transform>();        
@@ -51,6 +51,8 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
         unit.AddControl(this);
         PositionOnMap(unit.X, unit.Y);
+        if(level > 1)
+        LevelUp(level);
     }      
 
     public void DestroyUnit()

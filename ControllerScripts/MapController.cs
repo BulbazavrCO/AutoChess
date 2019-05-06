@@ -11,15 +11,22 @@ public class MapController : MonoBehaviour
 
     private UnitControl selectUnit;
 
-    private RandomEnemies enemies;
+    private RandomEnemies AllParametrs;
 
     private int wave;
+
+    [SerializeField]
+    private int MapTime = 30;
+
+    [SerializeField]
+    private int ButtleTime = 30;
 
     private void Start()
     {
         instance = this;
-        map = new Map();
-        enemies = GetComponent<RandomEnemies>();        
+        map = new Map(MapTime, ButtleTime);
+        AllParametrs = GetComponent<RandomEnemies>();
+        StartCoroutine(MapTimeUpdate());
     }
 
     private void Update()
@@ -84,7 +91,7 @@ public class MapController : MonoBehaviour
 
     private Unit CreateUnit(UnitParametrs param, int x, int y, TypeCell type)
     {       
-        Unit unit = new Unit(param.stats, map, x, y, type);
+        Unit unit = new Unit(param.stats, map, x, y, type, param.ID);
         CreateUnit(unit, param.model, param);
         return unit;
     }
@@ -93,12 +100,12 @@ public class MapController : MonoBehaviour
     {
         GameObject go = Instantiate(prefab);
         var unitControl = go.AddComponent<MeleeUnit>();
-        unitControl.Create(transform, unit, param);
+        unitControl.Create(transform, unit, param, unit.Level);
     }
 
     private List<Unit> EnemiesUnits()
     {
-        List<UnitParametrs> param = enemies.EnemiesUnits();
+        List<UnitParametrs> param = AllParametrs.EnemiesUnits();
 
         List<Unit> units = new List<Unit>();
 
@@ -112,19 +119,39 @@ public class MapController : MonoBehaviour
     public void StartButtle()
     {
        map.CreateButtle(EnemiesUnits());
+        StartCoroutine(CheckEndButtle());
+    }
+
+    private IEnumerator MapTimeUpdate()
+    {  
+        while (map.CheckTime())
+        {
+            yield return new WaitForSeconds(1);
+            map.UpdateTime();
+        }
+
+        StartButtle();
     }
 
     private IEnumerator CheckEndButtle()
-    {
-        while(map.CheckButtle())
+    {             
+        while (map.CheckButtle())
         {
             yield return new WaitForSeconds(1);
+            map.UpdateTime();
         }
         EndButtle();
     }
 
     public void EndButtle()
     {
-        map.EndButtle();        
+        map.EndButtle();
+        UnitParametrs param;        
+        foreach(Unit unit in map.CloneUnits)
+        {
+            param = AllParametrs.GetParametrs(unit.ID);
+            CreateUnit(unit, param.model, param);
+        }
+        StartCoroutine(MapTimeUpdate());            
     }
 }

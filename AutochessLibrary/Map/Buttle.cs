@@ -49,7 +49,7 @@ namespace AutoChess
         
         public bool CheckButtle()
         {
-            return unionUnits.Count == 0 || enemiesUnits.Count == 0;
+            return (unionUnits.Count == 0 || enemiesUnits.Count == 0);
         }
 
         public void EndButtle()
@@ -57,8 +57,8 @@ namespace AutoChess
             List<Unit> units = unionUnits.Concat(enemiesUnits).ToList();
             foreach(var unit in units)
             {
-                unit.DestroyUnit();
-            }
+                unit.DestroyInButtle();
+            }           
         }
     }
 }

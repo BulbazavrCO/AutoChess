@@ -9,15 +9,27 @@ namespace AutoChess
 
         public Stock stock { get; private set; }
 
-        public List<Unit> UnionUnits { get; private set; }
+        public List<Unit> UnionUnits { get; private set; }        
+
+        public List<Unit> CloneUnits { get; private set; }
 
         private Buttle buttle;
 
-        public Map()
+        private int mapTime;
+
+        private int buttleTime;
+
+        public int time { get; private set; }
+
+        public Map(int MapTime, int ButtleTime)
         {
             CreateNodes();
             UnionUnits = new List<Unit>();
-            stock = new Stock(this);
+            CloneUnits = new List<Unit>();
+            stock = new Stock(this);            
+            mapTime = MapTime;
+            buttleTime = ButtleTime;
+            time = mapTime;
         }      
 
         public (int, int) CreateUnionMapUnit(int x, int y, Unit unit)
@@ -66,28 +78,32 @@ namespace AutoChess
         public void RemoveUnitInButtle(Unit unit)
         {
             buttle.RemoveUnit(unit);
+            RemoveCell(unit);
         }     
 
         public void CreateButtle(List<Unit> enemies)
         {
-            buttle = new Buttle(UnionUnits, enemies, this);
+            CloneUnits.Clear();
+            buttle = new Buttle(UnionUnits, enemies, this);                     
+            time = buttleTime;           
+
+            foreach(Unit u in UnionUnits)
+            {
+                CloneUnits.Add(u);
+            }
         }
 
         public void EndButtle()
         {
-            buttle.EndButtle();
+            buttle.EndButtle();            
             buttle = null;
+            time = mapTime;            
         }
 
         public bool CheckButtle()
         {
-            return buttle.CheckButtle();
-        }
-
-        public List<Unit> GetButtleUnits()
-        {
-            return null;
-        }
+            return (!buttle.CheckButtle() && CheckTime());
+        }       
 
         public Unit GetUnit(TypeCell type, int rangeAttak, int x, int y)
         {
@@ -97,20 +113,61 @@ namespace AutoChess
                 {
                     if (i >= 0 && i < 8 && j >= 0 && j < 8)
                     {
-                        ICell cell = Grid[i, j].Cell;                        
+                        Unit unit = (Unit)Grid[i, j].Cell;                        
 
-                        if (cell == null)
-                            continue;
+                        if (unit == null)
+                            continue;                       
 
-                        if (cell.typeCell == TypeCell.netral)
-                            continue;
-
-                        if (cell.typeCell != type)                            
-                            return (Unit)cell;                       
+                        if (unit.typeCell != type && unit.CheckToDamage())                            
+                            return unit;                       
                     }
                 }
             }
             return null;
+        }       
+
+        public bool CheckTime()
+        {
+            return time > 0;
+        }
+
+        public void UpdateTime()
+        {
+            time--;
+        }
+
+        public List<Node> GetNeighbours(Node node)
+        {
+            List<Node> neighbours = new List<Node>();
+
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    if (x == 0 && y == 0)
+                        continue;
+
+                    int checkX = node.X + x;
+                    int checkY = node.Y + y;
+
+                    if (checkX >= 0 && checkX < 7 && checkY >= 0 && checkY < 7)
+                    {
+                        neighbours.Add(Grid[checkX, checkY]);
+                    }
+                }
+            }
+
+            return neighbours;
+        }
+
+        public (int,int) GetUnitToMove(Unit unit)
+        {
+            int r = 1;
+            while(r < 8)
+            {
+                
+            }
+            return (unit.X, unit.Y);
         }
 
         private void CreateNodes()

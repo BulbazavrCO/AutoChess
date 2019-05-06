@@ -6,6 +6,8 @@ namespace AutoChess
 {    
     public class Unit : ICell
     {
+        public int ID { get; private set; }
+
         public int X { get; private set; }
 
         public int Y { get; private set; }
@@ -16,7 +18,7 @@ namespace AutoChess
 
         private IUnit control;
 
-        private Map map;
+        public Map map;
 
         private bool dead;
 
@@ -36,9 +38,9 @@ namespace AutoChess
         {
             Level = 1;
             stats = param;
-        }
+        }           
 
-        public Unit(UnitStats param, Map map, int x, int y, TypeCell type)
+        public Unit(UnitStats param, Map map, int x, int y, TypeCell type, int id)
         {
             dead = false;
             Level = 1;
@@ -46,8 +48,7 @@ namespace AutoChess
             stats = param;
             CreateXY(x, y);
             typeCell = type;
-
-            UpdateStats();
+            ID = id;          
         }
 
         public void Damage(float value)
@@ -133,6 +134,12 @@ namespace AutoChess
         {
             RemoveUnitPosition();
             control.DestroyUnit();
+        } 
+        
+        public void DestroyInButtle()
+        {
+            map.RemoveUnitInButtle(this);
+            control.DestroyUnit();
         }
 
         public void ActionUnit()
@@ -152,6 +159,12 @@ namespace AutoChess
         public void AddControl(IUnit control)
         {
             this.control = control;
+            UpdateStats();
+        }
+
+        public bool CheckToDamage()
+        {
+            return !dead;
         }
 
         private void UpdateStats()

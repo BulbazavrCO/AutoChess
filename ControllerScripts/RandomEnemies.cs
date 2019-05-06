@@ -5,12 +5,23 @@ using UnityEngine;
 
 public class RandomEnemies: MonoBehaviour 
 {
-    public UnitParametrs param;  
+    public UnitParametrs[] Parametrs;  
 
     public List<UnitParametrs> EnemiesUnits()
     {
-        List<UnitParametrs> par = new List<UnitParametrs>() { param };
+        List<UnitParametrs> par = new List<UnitParametrs>() { Parametrs[0] };
 
         return par;
     }   
+
+    public UnitParametrs GetParametrs(int id)
+    {
+        UnitParametrs param = null;
+        for(int i = 0; i < Parametrs.Length; i++)
+        {
+            if (Parametrs[i].ID == id)
+                param = Parametrs[i];
+        }
+        return param;
+    }
 }

@@ -7,6 +7,8 @@ using AutoChess.Parametrs;
 [CreateAssetMenu(fileName = "NewUnit", menuName = "Unit")]
 public class UnitParametrs : ScriptableObject
 {
+    public int ID;
+
     public UnitStats stats;        
 
     public GameObject model;    
