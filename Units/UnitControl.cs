@@ -27,7 +27,7 @@ public abstract class UnitControl : MonoBehaviour, IUnit
     public void PositionOnMap(float x, float y)
     {
         tr.position = Pos(unit.CreateTo(x, y));
-    }
+    }    
 
     private Vector3 Pos ((int x, int y) pos)
     {
@@ -65,7 +65,6 @@ public abstract class UnitControl : MonoBehaviour, IUnit
         Renderer r = GetComponent<MeshRenderer>();       
 
         r.material.color = level == 2 ? Color.red : Color.blue;
-        Debug.Log(level);
     }
 
     public void StartButtle()
@@ -97,13 +96,14 @@ public abstract class UnitControl : MonoBehaviour, IUnit
         Debug.Log(unit.typeCell + " " + damage);
     }
 
-    public void Move(int x, int y)
+    public void Move((int,int) move)
     {
-        action = MoveUnit(x, y);        
+        action = MoveUnit(move.Item1, move.Item2);        
     }
 
     private IEnumerator DeadUnit()
     {
+        tr.rotation = Quaternion.Euler(90, 0, 0);
         yield return new WaitForSeconds(2.0f);
         DestroyUnit();
     }
@@ -123,7 +123,8 @@ public abstract class UnitControl : MonoBehaviour, IUnit
 
     private IEnumerator MoveUnit(int x, int y)
     {
-        yield return null;
+        yield return new WaitForSeconds(1);
+        tr.position = Pos((x, y));
         action = null;
     }    
 }

@@ -9,7 +9,7 @@ public class RandomEnemies: MonoBehaviour
 
     public List<UnitParametrs> EnemiesUnits()
     {
-        List<UnitParametrs> par = new List<UnitParametrs>() { Parametrs[0] };
+        List<UnitParametrs> par = new List<UnitParametrs>() { Parametrs[0], Parametrs[0], Parametrs[1] };
 
         return par;
     }   

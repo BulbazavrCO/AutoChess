@@ -5,9 +5,11 @@ namespace AutoChess
 {
     public class Map
     {
-        private Node[,] Grid;
+        public Node[,] Grid { get; private set; }
 
         public Stock stock { get; private set; }
+
+        public Pathfiding Pathf;
 
         public List<Unit> UnionUnits { get; private set; }        
 
@@ -30,6 +32,7 @@ namespace AutoChess
             mapTime = MapTime;
             buttleTime = ButtleTime;
             time = mapTime;
+            Pathf = new Pathfiding(this);
         }      
 
         public (int, int) CreateUnionMapUnit(int x, int y, Unit unit)
@@ -63,12 +66,7 @@ namespace AutoChess
         public void RemoveCell(ICell cell)
         {
             Grid[cell.X, cell.Y].Cell = null;
-        }
-
-        public (int, int) MoveUnit(int x, int y)
-        {
-            return (0, 0);
-        }       
+        }               
 
         public void AddUnitInButtle(Unit unit)
         {
@@ -84,13 +82,12 @@ namespace AutoChess
         public void CreateButtle(List<Unit> enemies)
         {
             CloneUnits.Clear();
-            buttle = new Buttle(UnionUnits, enemies, this);                     
-            time = buttleTime;           
-
-            foreach(Unit u in UnionUnits)
+            foreach (Unit u in UnionUnits)
             {
-                CloneUnits.Add(u);
+                CloneUnits.Add(new Unit(u, this));
             }
+            buttle = new Buttle(UnionUnits, enemies, this);                     
+            time = buttleTime;              
         }
 
         public void EndButtle()
@@ -102,26 +99,34 @@ namespace AutoChess
 
         public bool CheckButtle()
         {
+            if (buttle == null)
+                return false;
+
             return (!buttle.CheckButtle() && CheckTime());
         }       
 
-        public Unit GetUnit(TypeCell type, int rangeAttak, int x, int y)
+        public Unit GetUnit(TypeCell type,  int x, int y, int range)
         {
-            for (int i = x-rangeAttak; i <= x+rangeAttak; i++)
+            int r = 1;
+            while (r <= range)
             {
-                for(int j = y-rangeAttak; j <= y+rangeAttak; j++)
+                for (int i = x - r; i <= x + r; i++)
                 {
-                    if (i >= 0 && i < 8 && j >= 0 && j < 8)
+                    for (int j = y - r; j <= y + r; j++)
                     {
-                        Unit unit = (Unit)Grid[i, j].Cell;                        
+                        if (i >= 0 && i < 8 && j >= 0 && j < 8)
+                        {
+                            Unit unit = (Unit)Grid[i, j].Cell;                            
 
-                        if (unit == null)
-                            continue;                       
+                            if (unit == null)
+                                continue;
 
-                        if (unit.typeCell != type && unit.CheckToDamage())                            
-                            return unit;                       
+                            if (unit.typeCell != type && unit.CheckToDamage())
+                                return unit;
+                        }
                     }
                 }
+                r++;
             }
             return null;
         }       
@@ -158,17 +163,32 @@ namespace AutoChess
             }
 
             return neighbours;
-        }
-
-        public (int,int) GetUnitToMove(Unit unit)
+        }    
+        
+        public Node GetNode(TypeCell type, int x, int y)
         {
+            Unit unit = GetUnit(type, x, y, 8);
+            if (unit == null)
+                return null;
+
             int r = 1;
-            while(r < 8)
+            while (r <= 8)
             {
-                
+                for(int i = unit.X - r; i <= unit.X + r; i++)
+                {
+                    for(int j = unit.Y-r; j <= unit.Y + r; j++)
+                    {
+                        if (i >= 0 && i < 8 && j >= 0 && j < 8)
+                        {
+                            if (Grid[i, j].OnMove())
+                                return Grid[i, j];
+                        }
+                    }
+                }
+                r++;
             }
-            return (unit.X, unit.Y);
-        }
+            return null;
+        }      
 
         private void CreateNodes()
         {

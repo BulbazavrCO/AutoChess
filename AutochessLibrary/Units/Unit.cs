@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using AutoChess.Parametrs;
+using UnityEngine;
 
 namespace AutoChess
-{    
+{
     public class Unit : ICell
     {
         public int ID { get; private set; }
@@ -38,17 +39,28 @@ namespace AutoChess
         {
             Level = 1;
             stats = param;
-        }           
+        }
 
-        public Unit(UnitStats param, Map map, int x, int y, TypeCell type, int id)
+        public Unit(Unit unit, Map map)
         {
             dead = false;
-            Level = 1;
+            Level = unit.Level;
+            this.map = map;
+            stats = unit.stats;
+            CreateXY(unit.X, unit.Y);
+            typeCell = unit.typeCell;
+            ID = unit.ID;
+        }
+
+        public Unit(UnitStats param, Map map, int x, int y, TypeCell type, int id, int level = 1)
+        {
+            dead = false;
+            Level = level;
             this.map = map;
             stats = param;
             CreateXY(x, y);
             typeCell = type;
-            ID = id;          
+            ID = id;
         }
 
         public void Damage(float value)
@@ -97,12 +109,12 @@ namespace AutoChess
             int checkX = CheckX((int)x);
             int checkY = CheckY((int)y);
 
-            if (y < 0)            
+            if (y < 0)
                 return OnStock();
 
             CreateXY(checkX, checkY);
-            if(typeCell == TypeCell.union)
-            return map.CreateUnionMapUnit(checkX, checkY, this);
+            if (typeCell == TypeCell.union)
+                return map.CreateUnionMapUnit(checkX, checkY, this);
 
             return map.CreateUnitOnMap(checkX, checkY, this);
         }
@@ -134,8 +146,8 @@ namespace AutoChess
         {
             RemoveUnitPosition();
             control.DestroyUnit();
-        } 
-        
+        }
+
         public void DestroyInButtle()
         {
             map.RemoveUnitInButtle(this);
@@ -148,7 +160,7 @@ namespace AutoChess
             if (enemyUnit != null)
                 control.Attak(enemyUnit, attakSpeed, Damage());
             else
-                control.Move(Move().Item1, Move().Item2);
+                control.Move(Move());
         }
 
         public void StartButtle()
@@ -169,12 +181,12 @@ namespace AutoChess
 
         private void UpdateStats()
         {
-            hp = stats.GetHP(Level-1);
+            hp = stats.GetHP(Level - 1);
             damage = stats.GetDamage(Level - 1);
             armor = stats.armor;
             magicArmor = stats.magicArmor;
             mp = stats.maxMP;
-            attakSpeed = stats.GettAttakSpeed(Level-1);
+            attakSpeed = stats.GettAttakSpeed(Level - 1);
         }
 
         private void CreateXY(int x, int y)
@@ -185,7 +197,7 @@ namespace AutoChess
 
         private Unit CheckAttak()
         {
-            return map.GetUnit(typeCell, stats.attakRange, X, Y);
+            return map.GetUnit(typeCell, X, Y, stats.attakRange);
         }
 
         private float Damage()
@@ -196,7 +208,7 @@ namespace AutoChess
         private (int, int) OnStock()
         {
             if (map.stock.CheckStock(this))
-            {              
+            {
                 X = -1;
                 Y = -1;
                 return (map.stock.OnStock(this), -1);
@@ -207,8 +219,19 @@ namespace AutoChess
 
         private (int, int) Move()
         {
-            return (0, 0);
-        }       
+            (int, int) pos = (X, Y);
+
+            Node node = map.GetNode(typeCell, X, Y);
+            if (node == null)
+                return pos;
+
+            List<Node> nodes = map.Pathf.FindPath(map.Grid[X, Y], node);
+            pos = (nodes[0].X, nodes[0].Y);
+            map.RemoveCell(this);
+            CreateXY(pos.Item1, pos.Item2);
+            map.CreateUnitOnMap(pos.Item1, pos.Item2, this);
+            return pos;
+        }
 
         private int CheckX(int x)
         {
@@ -221,8 +244,9 @@ namespace AutoChess
 
         private int CheckY(int y)
         {
-            if (y > 3)
+            if (y > 3 && typeCell == TypeCell.union)
                 return 3;
+
             return y;
         }
     }

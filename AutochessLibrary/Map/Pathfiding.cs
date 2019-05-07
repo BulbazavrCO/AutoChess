@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace AutoChess
 {
@@ -7,7 +8,7 @@ namespace AutoChess
     {
         Map map;
 
-        public void AddMap(Map map)
+        public Pathfiding (Map map)
         {
             this.map = map;
         }
@@ -15,7 +16,7 @@ namespace AutoChess
         public List<Node> FindPath(Node startPos, Node endPos)
         {
             Node startNode = startPos;
-            Node targetNode = endPos;
+            Node targetNode = endPos;           
 
             List<Node> openSet = new List<Node>();
             HashSet<Node> closeSet = new HashSet<Node>();
@@ -25,7 +26,7 @@ namespace AutoChess
             openSet.Add(startPos);
 
             while (openSet.Count > 0)
-            {
+            {                
                 Node currentNode = openSet[0];
                 for (int i = 1; i < openSet.Count; i++)
                 {

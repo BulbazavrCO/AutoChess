@@ -19,6 +19,6 @@ namespace AutoChess
 
         void Attak(Unit enemyUnit, float attakSpeed, float damage);
 
-        void Move(int x, int y);
+        void Move((int , int) move);
     }
 }
